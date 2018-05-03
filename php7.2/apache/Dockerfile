@@ -58,3 +58,10 @@ COPY docker-entrypoint.sh /usr/local/bin/
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
+
+FROM wordpress
+
+RUN sed -r -e 's/\r$//' /usr/src/wordpress/wp-config-sample.php \
+    | awk '/^\/\*.*stop editing.*\*\/$/ { print("define( \"WP_ALLOW_MULTISITE\", true );") } { print }' > temp.php \
+    && chown --reference /usr/src/wordpress/wp-config-sample.php temp.php \
+    && mv temp.php /usr/src/wordpress/wp-config-sample.php
